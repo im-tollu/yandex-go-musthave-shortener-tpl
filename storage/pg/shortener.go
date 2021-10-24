@@ -65,7 +65,12 @@ func (s *PgShortenerStorage) GetURLByID(id int) (*model.ShortenedURL, error) {
 }
 
 func (s *PgShortenerStorage) LookupURL(u url.URL) (*model.ShortenedURL, error) {
-	row := s.QueryRow("select URLS_ID, URLS_ORIGINAL_URL, USERS_ID, URLS_DELETED from URLS where URLS_ORIGINAL_URL = $1", u.String())
+	row := s.QueryRow(`
+		select URLS_ID, URLS_ORIGINAL_URL, USERS_ID, URLS_DELETED 
+		from URLS 
+		where URLS_ORIGINAL_URL = $1
+			and URLS_DELETED = false
+		`, u.String())
 
 	url := model.ShortenedURL{}
 

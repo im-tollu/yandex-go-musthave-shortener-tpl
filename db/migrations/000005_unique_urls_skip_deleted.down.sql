@@ -1,0 +1,1 @@
+drop index UNQ_URLS_ORIGINAL_URL;
