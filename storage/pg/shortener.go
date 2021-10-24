@@ -23,6 +23,35 @@ func NewShortenerStorage(db *sql.DB) (*PgShortenerStorage, error) {
 	return &PgShortenerStorage{db}, nil
 }
 
+func (s *PgShortenerStorage) DeleteBatchURLs(batch []model.URLToDelete) {
+	stmt, errPrepare := s.Prepare("update URLS set URLS_DELETED = true where URLS_ID = $1 and USERS_ID = $2")
+	if errPrepare != nil {
+		log.Printf("Cannot prepare statement to delete batch URLs: %s", errPrepare.Error())
+		return
+	}
+	defer stmt.Close()
+
+	var totalAffectedRows int64
+
+	for _, u := range batch {
+		result, errExec := stmt.Exec(u.ID, u.UserID)
+		if errExec != nil {
+			log.Printf("Cannot delete url [%v]: %s", u, errExec.Error())
+			continue
+		}
+
+		affectedRows, errAffected := result.RowsAffected()
+		if errAffected != nil {
+			log.Printf("Cannot get affected rows for url [%v]: %s", u, errAffected.Error())
+			continue
+		}
+
+		totalAffectedRows += affectedRows
+	}
+
+	log.Printf("Deleted URLs batch; affected %d", totalAffectedRows)
+}
+
 func (s *PgShortenerStorage) GetURLByID(id int) (*model.ShortenedURL, error) {
 	row := s.QueryRow("select URLS_ID, URLS_ORIGINAL_URL, USERS_ID from URLS where URLS_ID = $1", id)
 

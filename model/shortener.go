@@ -47,3 +47,8 @@ func NewShortenedURL(userID int64, id int, u url.URL) ShortenedURL {
 func (u ShortenedURL) String() string {
 	return fmt.Sprintf("StoreURL{%d - %d - %s}", u.UserID, u.ID, u.LongURL.String())
 }
+
+type URLToDelete struct {
+	UserID int64
+	ID int
+}
