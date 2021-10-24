@@ -29,10 +29,10 @@ func (h *URLShortenerHandler) handleDeleteUserURLs(w http.ResponseWriter, r *htt
 	}
 
 	urlsToDelete := make([]model.URLToDelete, 0, len(urlIDsStr))
-	for _, urlIdStr := range urlIDsStr {
-		urlID, err := strconv.Atoi(urlIdStr)
+	for _, urlIDStr := range urlIDsStr {
+		urlID, err := strconv.Atoi(urlIDStr)
 		if err != nil {
-			msg := fmt.Sprintf("Cannot parse URL ID [%s]: %v", urlIdStr, err.Error())
+			msg := fmt.Sprintf("Cannot parse URL ID [%s]: %v", urlIDStr, err.Error())
 			log.Println(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
