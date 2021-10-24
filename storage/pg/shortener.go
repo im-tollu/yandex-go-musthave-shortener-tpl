@@ -53,7 +53,7 @@ func (s *PgShortenerStorage) DeleteBatchURLs(batch []model.URLToDelete) {
 }
 
 func (s *PgShortenerStorage) GetURLByID(id int) (*model.ShortenedURL, error) {
-	row := s.QueryRow("select URLS_ID, URLS_ORIGINAL_URL, USERS_ID from URLS where URLS_ID = $1", id)
+	row := s.QueryRow("select URLS_ID, URLS_ORIGINAL_URL, USERS_ID, URLS_DELETED from URLS where URLS_ID = $1", id)
 
 	url := model.ShortenedURL{}
 
@@ -65,7 +65,7 @@ func (s *PgShortenerStorage) GetURLByID(id int) (*model.ShortenedURL, error) {
 }
 
 func (s *PgShortenerStorage) LookupURL(u url.URL) (*model.ShortenedURL, error) {
-	row := s.QueryRow("select URLS_ID, URLS_ORIGINAL_URL, USERS_ID from URLS where URLS_ORIGINAL_URL = $1", u.String())
+	row := s.QueryRow("select URLS_ID, URLS_ORIGINAL_URL, USERS_ID, URLS_DELETED from URLS where URLS_ORIGINAL_URL = $1", u.String())
 
 	url := model.ShortenedURL{}
 
@@ -80,9 +80,10 @@ func (s *PgShortenerStorage) ListByUserID(userID int64) ([]model.ShortenedURL, e
 	result := make([]model.ShortenedURL, 0)
 
 	rows, err := s.Query(`
-		select URLS_ID, URLS_ORIGINAL_URL, USERS_ID
+		select URLS_ID, URLS_ORIGINAL_URL, USERS_ID, URLS_DELETED
 		from URLS
 		where USERS_ID = $1
+			and URLS_DELETED = false
 	`,
 		userID)
 	if err != nil {
@@ -110,7 +111,7 @@ func (s *PgShortenerStorage) SaveURL(u model.URLToShorten) (model.ShortenedURL, 
 	row := s.QueryRow(`
 		insert into URLS (URLS_ORIGINAL_URL, USERS_ID) 
 		values($1, $2)
-		returning URLS_ID, URLS_ORIGINAL_URL, USERS_ID
+		returning URLS_ID, URLS_ORIGINAL_URL, USERS_ID, URLS_DELETED
 	`, u.LongURL.String(), u.UserID)
 
 	url := model.ShortenedURL{}
@@ -133,7 +134,7 @@ type scannable interface {
 func mapShortenedURL(u *model.ShortenedURL, row scannable) error {
 	var longURLStr string
 
-	errScan := row.Scan(&u.ID, &longURLStr, &u.UserID)
+	errScan := row.Scan(&u.ID, &longURLStr, &u.UserID, &u.Deleted)
 	if errScan == sql.ErrNoRows {
 		return model.ErrURLNotFound
 	}

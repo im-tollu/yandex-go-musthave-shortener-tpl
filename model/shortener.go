@@ -32,6 +32,7 @@ type ShortenedURL struct {
 	UserID  int64
 	ID      int
 	LongURL url.URL
+	Deleted bool
 }
 
 func NewShortenedURL(userID int64, id int, u url.URL) ShortenedURL {
@@ -39,13 +40,18 @@ func NewShortenedURL(userID int64, id int, u url.URL) ShortenedURL {
 		UserID:  userID,
 		ID:      id,
 		LongURL: u,
+		Deleted: false,
 	}
 }
 
 // String provides a text representation of a shortened URL;
 // useful for logging
 func (u ShortenedURL) String() string {
-	return fmt.Sprintf("StoreURL{%d - %d - %s}", u.UserID, u.ID, u.LongURL.String())
+	deletedStr := ""
+	if u.Deleted {
+		deletedStr = "DELETED "
+	}
+	return fmt.Sprintf("%sStoreURL{%d - %d - %s}", deletedStr, u.UserID, u.ID, u.LongURL.String())
 }
 
 type URLToDelete struct {
