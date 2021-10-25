@@ -222,3 +222,32 @@ func newURL(urlStr string) url.URL {
 	}
 	return *u
 }
+
+func TestHandleDeleteUserURLs(t *testing.T) {
+	rw := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodDelete,
+		"/api/user/urls",
+		bytes.NewBufferString(`["1", "2", "3"]`),
+	)
+	req.Header.Add("Content-Type", "application/json")
+
+	urlService := new(urlmocks.URLServiceMock)
+	urlService.On("ScheduleDeletion", model.URLToDelete{ID: 1})
+	urlService.On("ScheduleDeletion", model.URLToDelete{ID: 2})
+	urlService.On("ScheduleDeletion", model.URLToDelete{ID: 3})
+	idService := authmocks.NewIDServiceStub()
+	pinger := mocks.NewPingerStub()
+	h := handler.New(urlService, idService, pinger, baseURL)
+
+	h.ServeHTTP(rw, req)
+
+	res := rw.Result()
+	defer res.Body.Close()
+	body, errBody := ioutil.ReadAll(res.Body)
+	require.NoError(t, errBody)
+
+	require.Equal(t, http.StatusAccepted, res.StatusCode, "status code")
+	require.Empty(t, body, "body should be empty")
+	urlService.AssertExpectations(t)
+}
