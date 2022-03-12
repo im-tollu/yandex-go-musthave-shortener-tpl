@@ -32,6 +32,11 @@ func (h *URLShortenerHandler) handleGetShortURL(w http.ResponseWriter, r *http.R
 
 	log.Printf("Found: %d - %v", id, url)
 
+	if url.Deleted {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
+
 	w.Header().Add("Location", url.LongURL.String())
 	w.WriteHeader(http.StatusTemporaryRedirect)
 }

@@ -33,6 +33,7 @@ func New(shortenerService shortener.URLService, idService auth.IDService, pinger
 		r.Post("/", h.handlePostLongURL)
 		r.Post("/api/shorten", h.handlePostAPIShorten)
 		r.Post("/api/shorten/batch", h.handlePostShortenBatch)
+		r.Delete("/api/user/urls", h.handleDeleteUserURLs)
 		r.Get("/{id}", h.handleGetShortURL)
 		r.Get("/user/urls", h.handleGetUserURLs)
 	})

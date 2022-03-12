@@ -48,3 +48,7 @@ func (m *URLServiceMock) AbsoluteURL(u model.ShortenedURL) (*url.URL, error) {
 
 	return args.Get(0).(*url.URL), args.Error(1)
 }
+
+func (m *URLServiceMock) ScheduleDeletion(u model.URLToDelete) {
+	_ = m.Called(u)
+}
