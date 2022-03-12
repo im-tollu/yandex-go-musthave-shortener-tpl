@@ -7,6 +7,7 @@ type LongURLJson struct {
 	URL string `json:"url"`
 }
 
+// ShortURLJson is a response with shortened URL
 type ShortURLJson struct {
 	Result string `json:"result"`
 }
