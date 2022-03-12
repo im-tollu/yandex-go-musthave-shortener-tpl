@@ -18,9 +18,12 @@ type URLService interface {
 	// that is already shortened
 	LookupURL(u url.URL) (*model.ShortenedURL, error)
 
-	// GetUserURLs
+	// GetUserURLs returns all URLs shortened by the userID
 	GetUserURLs(userID int64) ([]model.ShortenedURL, error)
 
-	// AbsoluteURL resolves a short URL with regards to base URL
+	// ScheduleDeletion adds url to deletion queue
+	ScheduleDeletion(u model.URLToDelete)
+
+	// AbsoluteURL resolves a short URL relative to base URL
 	AbsoluteURL(u model.ShortenedURL) (*url.URL, error)
 }

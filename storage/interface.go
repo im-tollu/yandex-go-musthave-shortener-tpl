@@ -21,6 +21,9 @@ type ShortenerStorage interface {
 
 	// SaveURL persists a shortened URL. It is responsible for generating ID.
 	SaveURL(model.URLToShorten) (model.ShortenedURL, error)
+
+	// DeleteBatchURLs deletes all URLs that can be deleted, skipping failed ones.
+	DeleteBatchURLs(batch []model.URLToDelete)
 }
 
 // AuthStorage provides methods to persist and retrieve
